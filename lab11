@@ -1,0 +1,52 @@
+import requests
+from bs4 import BeautifulSoup
+
+# The website to be accessed-要爬的网址 
+URL = "https://www.bbc.com/news"
+
+# Disguised as a browser-伪装成浏览器
+headers = {
+    "User-Agent": "Mozilla/5.0"
+}
+
+# Access the webpage-获取网页
+page = requests.get(URL, headers=headers)
+soup = BeautifulSoup(page.text, "html.parser")
+
+# Find all the news-找到所有新闻
+articles = soup.find_all("div", {"data-testid": "card-text-wrapper"})
+
+print("=== BBC News ===")
+
+# Cycle through each piece of news-循环每条新闻
+for item in articles:
+    # title
+    title = item.find("h2", {"data-testid": "card-headline"})
+    if title:
+        title = title.get_text(strip=True)
+    else:
+        title = "No Title"
+
+    # summary
+    summary = item.find("p", {"data-testid": "card-description"})
+    if summary:
+        summary = summary.get_text(strip=True)
+    else:
+        summary = "No Summary"
+
+    # link
+    link = item.find("a")
+    if link:
+        link = link["href"]
+        if link.startswith("/"):
+            link = "https://www.bbc.com" + link
+    else:
+        link = "No Link"
+
+    # output
+    print("Title:", title)
+    print("Summary:", summary)
+    print("Link:", link)
+    print("-" * 60)
+
+print("=== Finished ===")
